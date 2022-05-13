@@ -17,7 +17,7 @@ const scene = new THREE.Scene()
 
 let tl = gsap.timeline()
 
-gltfLoader.load('Pick-Up .gltf', (gltf) => {
+gltfLoader.load('tree04.gltf', (gltf) => {
 
   gltf.scene.scale.set(0.4,0.4,0.4)
   gltf.scene.rotation.set(0.3,5.5,0)
@@ -102,6 +102,7 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
 
     // Update objects
+
     // sphere.rotation.y = .5 * elapsedTime
 
     // Update Orbital Controls
@@ -109,7 +110,6 @@ const tick = () =>
 
     // Render
     renderer.render(scene, camera)
-
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
