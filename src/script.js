@@ -17,10 +17,10 @@ const scene = new THREE.Scene()
 
 let tl = gsap.timeline()
 
-gltfLoader.load('tree04.gltf', (gltf) => {
+gltfLoader.load('sedanSports.glb', (gltf) => {
 
   gltf.scene.scale.set(0.4,0.4,0.4)
-  gltf.scene.rotation.set(0.3,5.5,0)
+  gltf.scene.rotation.set(0.86,2.4,0)
   scene.add(gltf.scene)
 
   tl
@@ -32,7 +32,7 @@ gltfLoader.load('tree04.gltf', (gltf) => {
 
 // Lights
 
-const pointLight = new THREE.PointLight(0xffffff, 1)
+const pointLight = new THREE.PointLight(0xffffff, 4)
 pointLight.position.x = 5
 pointLight.position.y = 8
 pointLight.position.z = 4
@@ -46,6 +46,17 @@ scene.add(pointLight2)
 /**
  * Sizes
  */
+
+//control
+// const keyPressed = {}
+// document.addEventListener('keydown', (event) => {
+//     (keyPressed as any)[event.key.toLowerCase()] = true
+// }, false)
+
+// document.addEventListener('keyup', (event) => {
+
+// }, false)
+
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
@@ -73,7 +84,7 @@ window.addEventListener('resize', () =>
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.x = 0
 camera.position.y = 0
-camera.position.z = 2
+camera.position.z = 4
 scene.add(camera)
 
 // Controls
@@ -103,7 +114,7 @@ const tick = () =>
 
     // Update objects
 
-    // sphere.rotation.y = .5 * elapsedTime
+    //.rotation.y = .5 * elapsedTime
 
     // Update Orbital Controls
     // controls.update()
