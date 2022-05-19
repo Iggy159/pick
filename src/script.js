@@ -9,6 +9,14 @@ const gltfLoader = new GLTFLoader()
 // Debug
 const gui = new dat.GUI()
 
+let ambientLight,
+		pointLight
+
+let mouse = {
+	x: 0,
+	y: 0
+}
+
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
 
@@ -17,13 +25,12 @@ const scene = new THREE.Scene()
 
 let tl = gsap.timeline()
 
-gltfLoader.load('sedanSports.glb', (gltf) => {
+gltfLoader.load('scene.gltf', (gltf) => {
 
   gltf.scene.scale.set(0.4,0.4,0.4)
-  gltf.scene.rotation.set(0.86,2.4,0)
+	
+  //gltf.scene.center()
   scene.add(gltf.scene)
-
-  tl
 
   gui.add(gltf.scene.rotation, 'x').min(0).max(9)
   gui.add(gltf.scene.rotation, 'y').min(0).max(9)
@@ -32,50 +39,27 @@ gltfLoader.load('sedanSports.glb', (gltf) => {
 
 // Lights
 
+// Ambient light
+	ambientLight = new THREE.AmbientLight(0x333333, 0.35);
+	scene.add(ambientLight);
+
+	// Point light
+	pointLight = new THREE.PointLight(0xAAAAAA, 0.55);
+	pointLight.position.set(0, 0, 0);
+	pointLight.castShadow = true;
+	pointLight.shadow.bias = 0.0001;
+	pointLight.mapSizeWidth = 2048; // Shadow Quality
+	pointLight.mapSizeHeight = 2048; // Shadow Quality
+	scene.add(pointLight);
 
 
-const pointLight = new THREE.SpotLight(0xffffff, 4)
-pointLight.position.set(0, 0, 5)
-pointLight.target.position.set(0, 0, 0)
-scene.add(pointLight.target)
-scene.add(pointLight)
-// pointLight.position.y = 8
-// pointLight.position.z = 4
-let m   = { x: 0, y: 0 };
-let pos = { x: 0, y: 0 };
-
-// const pointLight2 = new THREE.PointLight(0xff0000, 0.3)
-// pointLight2.position.x = -5
-// pointLight2.position.y = -8
-// pointLight2.position.z = 4
-// scene.add(pointLight2)
-/**
- * Sizes
- */
- window.addEventListener('mousemove', function (e) {
-    m.x = e.clientX;
-    m.y = e.clientY;
-    pos.x = ((m.x / window.innerWidth) * 2) - 1
-    pos.y = (((m.y / window.innerHeight) * 2) - 1) * -1;
-    pointLight.target.position.set( pos.x, pos.y);
-    pointLight.target.updateMatrixWorld();
-});
-
-
-//control
-// const keyPressed = {}
-// document.addEventListener('keydown', (event) => {
-//     (keyPressed as any)[event.key.toLowerCase()] = true
-// }, false)
-
-// document.addEventListener('keyup', (event) => {
-
-// }, false)
 
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
 }
+
+document.addEventListener('mousemove', onMouseMove, false);
 
 window.addEventListener('resize', () =>
 {
@@ -99,16 +83,12 @@ window.addEventListener('resize', () =>
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.x = 0
 camera.position.y = 0
-camera.position.z = 4
+camera.position.z = 2
 scene.add(camera)
 
-// Controls
-// const controls = new OrbitControls(camera, canvas)
-// controls.enableDamping = true
 
-/**
- * Renderer
- */
+ // Renderer
+
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     alpha: true
@@ -116,6 +96,19 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+
+function onMouseMove(event) {
+	event.preventDefault();
+	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+	mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+	let vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+	vector.unproject(camera);
+	let dir = vector.sub(camera.position).normalize();
+	let distance = -camera.position.z / dir.z;
+	let pos = camera.position.clone().add(dir.multiplyScalar(distance));
+	pointLight.position.copy(pos);
+};
 /**
  * Animate
  */
