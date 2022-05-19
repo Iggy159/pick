@@ -32,20 +32,35 @@ gltfLoader.load('sedanSports.glb', (gltf) => {
 
 // Lights
 
-const pointLight = new THREE.PointLight(0xffffff, 4)
-pointLight.position.x = 5
-pointLight.position.y = 8
-pointLight.position.z = 4
-scene.add(pointLight)
 
-const pointLight2 = new THREE.PointLight(0xff0000, 0.3)
-pointLight2.position.x = -5
-pointLight2.position.y = -8
-pointLight2.position.z = 4
-scene.add(pointLight2)
+
+const pointLight = new THREE.SpotLight(0xffffff, 4)
+pointLight.position.set(0, 0, 5)
+pointLight.target.position.set(0, 0, 0)
+scene.add(pointLight.target)
+scene.add(pointLight)
+// pointLight.position.y = 8
+// pointLight.position.z = 4
+let m   = { x: 0, y: 0 };
+let pos = { x: 0, y: 0 };
+
+// const pointLight2 = new THREE.PointLight(0xff0000, 0.3)
+// pointLight2.position.x = -5
+// pointLight2.position.y = -8
+// pointLight2.position.z = 4
+// scene.add(pointLight2)
 /**
  * Sizes
  */
+ window.addEventListener('mousemove', function (e) {
+    m.x = e.clientX;
+    m.y = e.clientY;
+    pos.x = ((m.x / window.innerWidth) * 2) - 1
+    pos.y = (((m.y / window.innerHeight) * 2) - 1) * -1;
+    pointLight.target.position.set( pos.x, pos.y);
+    pointLight.target.updateMatrixWorld();
+});
+
 
 //control
 // const keyPressed = {}
