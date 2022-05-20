@@ -1,6 +1,11 @@
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { EffectComposer } from "/node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "/node_modules/three/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "/node_modules/three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { RGBShiftShader } from './jsm/shaders/RGBShiftShader.js';
+import { DotScreenShader } from './jsm/shaders/DotScreenShader.js';
 import * as dat from 'dat.gui'
 import GLTFLoader from 'three-gltf-loader';
 import gsap from 'gsap'
@@ -28,7 +33,7 @@ let tl = gsap.timeline()
 gltfLoader.load('scene.gltf', (gltf) => {
 
   gltf.scene.scale.set(0.4,0.4,0.4)
-	
+	gltf.scene.rotation.y = 5
   //gltf.scene.center()
   scene.add(gltf.scene)
 
@@ -40,14 +45,14 @@ gltfLoader.load('scene.gltf', (gltf) => {
 // Lights
 
 // Ambient light
-	ambientLight = new THREE.AmbientLight(0x333333, 0.35);
+	ambientLight = new THREE.AmbientLight(0xff0000, 0.015);
 	scene.add(ambientLight);
 
 	// Point light
-	pointLight = new THREE.PointLight(0xAAAAAA, 0.55);
+	pointLight = new THREE.PointLight(0xffffff, 0.55);
 	pointLight.position.set(0, 0, 0);
 	pointLight.castShadow = true;
-	pointLight.shadow.bias = 0.0001;
+	pointLight.shadow.bias = 0.1;
 	pointLight.mapSizeWidth = 2048; // Shadow Quality
 	pointLight.mapSizeHeight = 2048; // Shadow Quality
 	scene.add(pointLight);
@@ -81,9 +86,9 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 0
-camera.position.y = 0
-camera.position.z = 2
+camera.position.x = -1.5
+camera.position.y = 0.5
+camera.position.z = 1.6
 scene.add(camera)
 
 
@@ -109,6 +114,26 @@ function onMouseMove(event) {
 	let pos = camera.position.clone().add(dir.multiplyScalar(distance));
 	pointLight.position.copy(pos);
 };
+
+const renderScene = new RenderPass(scene, camera)
+
+//Bloom
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.5,
+  0.4,
+  0.85
+);
+bloomPass.exposure = 1.5
+bloomPass.threshold = 0.0;
+bloomPass.strength = 1.0; //intensity of glow
+bloomPass.radius = 1;
+
+const composer = new EffectComposer(renderer);
+composer.setSize(window.innerWidth, window.innerHeight);
+composer.renderToScreen = true;
+composer.addPass(renderScene);
+composer.addPass(bloomPass)
 /**
  * Animate
  */
@@ -128,7 +153,7 @@ const tick = () =>
     // controls.update()
 
     // Render
-    renderer.render(scene, camera)
+  	composer.render(scene, camera)
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
